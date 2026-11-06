@@ -1,0 +1,58 @@
+# QUESTION:
+# Given two sorted arrays, find their combined median
+# without fully merging them.
+# Example: nums1 = [1, 3], nums2 = [2] -> 2.0
+
+# APPROACH:
+# Binary search the partition of the smaller array.
+# Find a partition where every left-side element is
+# <= every right-side element.
+# Derive the median from the largest left and smallest right values.
+
+def find_median_sorted_arrays(
+    nums1: list[int], nums2: list[int]
+) -> float:
+    if len(nums1) > len(nums2):
+        nums1, nums2 = nums2, nums1
+
+    m, n = len(nums1), len(nums2)
+
+    if m + n == 0:
+        raise ValueError("Both arrays cannot be empty")
+
+    left, right = 0, m
+    half = (m + n + 1) // 2
+
+    while left <= right:
+        cut1 = (left + right) // 2
+        cut2 = half - cut1
+
+        left1 = nums1[cut1 - 1] if cut1 > 0 else float("-inf")
+        right1 = nums1[cut1] if cut1 < m else float("inf")
+
+        left2 = nums2[cut2 - 1] if cut2 > 0 else float("-inf")
+        right2 = nums2[cut2] if cut2 < n else float("inf")
+
+        if left1 <= right2 and left2 <= right1:
+            maximum_left = max(left1, left2)
+
+            if (m + n) % 2 == 1:
+                return float(maximum_left)
+
+            minimum_right = min(right1, right2)
+            return (maximum_left + minimum_right) / 2.0
+
+        elif left1 > right2:
+            right = cut1 - 1
+        else:
+            left = cut1 + 1
+
+    raise ValueError("Input arrays must be sorted")
+
+
+# CODE:
+# print(find_median_sorted_arrays([1, 3], [2]))       # 2.0
+# print(find_median_sorted_arrays([1, 2], [3, 4]))     # 2.5
+
+# TIME COMPLEXITY = O(log(min(M, N)))
+# SPACE COMPLEXITY = O(1)
